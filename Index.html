@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cursor-Focus Voice Form</title>
+    <style>
+        body { font-family: 'Segoe UI', sans-serif; background: #f0f2f5; display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0; }
+        .container { background: white; padding: 2rem; border-radius: 12px; box-shadow: 0 4px 20px rgba(0,0,0,0.1); width: 350px; }
+        h2 { text-align: center; color: #1a73e8; }
+        .input-group { margin-bottom: 15px; }
+        label { display: block; font-size: 12px; font-weight: bold; color: #5f6368; margin-bottom: 5px; }
+        input { width: 100%; padding: 12px; border: 2px solid #dadce0; border-radius: 8px; box-sizing: border-box; font-size: 16px; transition: 0.2s; }
+        input:focus { border-color: #1a73e8; outline: none; background: #f8f9fa; }
+        .mic-btn { width: 100%; padding: 15px; background: #1a73e8; color: white; border: none; border-radius: 8px; cursor: pointer; font-size: 16px; font-weight: bold; }
+        .mic-btn.listening { background: #d93025; }
+        #status { margin-top: 15px; text-align: center; font-size: 14px; color: #70757a; font-style: italic; }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h2>Voice Input Form</h2>
+    <p style="font-size: 11px; text-align: center;">Click a box, then click the Mic to speak.</p>
+
+    <div class="input-group">
+        <label>FULL NAME</label>
+        <input type="text" id="name" placeholder="Click here and speak">
+    </div>
+
+    <div class="input-group">
+        <label>CITY</label>
+        <input type="text" id="city" placeholder="Click here and speak">
+    </div>
+
+    <div class="input-group">
+        <label>OTHER DETAILS</label>
+        <input type="text" id="details" placeholder="Anything else?">
+    </div>
+
+    <button id="mic-btn" class="mic-btn">Start Listening 🎤</button>
+    <div id="status">Ready...</div>
+</div>
+
+<script>
+    let lastFocusedInput = null;
+
+    // Track which input the user last clicked/focused on
+    const inputs = document.querySelectorAll('input');
+    inputs.forEach(input => {
+        input.onfocus = () => {
+            lastFocusedInput = input;
+            document.getElementById('status').innerText = "Target: " + input.previousElementSibling.innerText;
+        };
+    });
+
+    const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+    const recognition = new SpeechRecognition();
+
+    // Set to Indian English for better recognition of cities like Kolhapur
+    recognition.lang = 'en-IN'; 
+    recognition.interimResults = false;
+
+    const btn = document.getElementById('mic-btn');
+    const status = document.getElementById('status');
+
+    btn.onclick = () => {
+        if (!lastFocusedInput) {
+            alert("Please click on an input box first!");
+            return;
+        }
+        recognition.start();
+        btn.classList.add('listening');
+        btn.innerText = "Listening...";
+    };
+
+    recognition.onresult = (event) => {
+        const transcript = event.results[0][0].transcript;
+        
+        // Directly insert the spoken text into the focused box
+        if (lastFocusedInput) {
+            lastFocusedInput.value = transcript;
+            status.innerText = `Inserted: "${transcript}"`;
+        }
+    };
+
+    recognition.onend = () => {
+        btn.classList.remove('listening');
+        btn.innerText = "Start Listening 🎤";
+    };
+
+    recognition.onerror = (err) => {
+        status.innerText = "Error: " + err.error;
+    };
+</script>
+
+</body>
+</html>
