@@ -23,7 +23,7 @@ Support for multiple languages
 
 Better speech accuracy handling
 
-Add voice commands (e.g., “next field”, “submit form”)
+Add voice commands (e.g., "next field", "submit form")
 
 Backend integration for storing form data
 
